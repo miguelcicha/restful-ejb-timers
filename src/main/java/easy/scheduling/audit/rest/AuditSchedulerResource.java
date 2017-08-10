@@ -1,6 +1,8 @@
 
 package easy.scheduling.audit.rest;
 
+import easy.scheduling.audit.biz.GenericScheduler;
+import easy.scheduling.audit.biz.ScheduleManagment;
 import easy.scheduling.audit.biz.ScheduledAuditService;
 import easy.scheduling.audit.model.ScheduleConfiguration;
 import easy.scheduling.audit.model.ScheduledTimerInfo;
@@ -27,6 +29,8 @@ public class AuditSchedulerResource {
     
     @Inject
     ScheduledAuditService auditScheduler;
+    @Inject
+    ScheduleManagment scheduleManagment;
     
     /**
      * Schedule a new timer
@@ -55,7 +59,7 @@ public class AuditSchedulerResource {
     @Path("{id}")
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response getTimerInfo(@PathParam("id") String name){
-        ScheduledTimerInfo info = auditScheduler.getTimerInfo(name);
+        ScheduledTimerInfo info = scheduleManagment.getTimerInfo(name);
         System.out.println("Returning information about timer -- "+ name);
         return Response.ok(info).build();
     }
@@ -68,8 +72,8 @@ public class AuditSchedulerResource {
     @GET
     @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     public Response getAllTimers(){
-        List<String> ejbTimers = auditScheduler.getAllTimers();
-        List<ScheduledTimerInfo> timers = ejbTimers.stream().map((id) -> auditScheduler.getTimerInfo(id)).collect(Collectors.toList());
+        List<String> ejbTimers = scheduleManagment.getAllTimers();
+        List<ScheduledTimerInfo> timers = ejbTimers.stream().map((id) -> scheduleManagment.getTimerInfo(id)).collect(Collectors.toList());
         
         GenericEntity<List<ScheduledTimerInfo>> entities = new GenericEntity<List<ScheduledTimerInfo>>(timers) {};
         System.out.println("Returning all active timers in the system");    
@@ -84,7 +88,7 @@ public class AuditSchedulerResource {
     @DELETE
     @Path("{id}")
     public void cancel(@PathParam("id") String name){
-        auditScheduler.cancel(name);
+        scheduleManagment.cancel(name);
         System.out.println("Timer '" + name + "' cancelled");
     }
     
